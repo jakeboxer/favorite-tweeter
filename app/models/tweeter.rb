@@ -34,7 +34,7 @@ class Tweeter < ActiveRecord::Base
   #
   # Returns an Array.
   def most_favorited_tweeters(cutoff_date)
-    faved_tweets = TWITTER.favorites(screen_name, :count => 100)
+    faved_tweets = TWITTER.favorites(screen_name, :count => 200)
     self.class.screen_name_count(faved_tweets, cutoff_date)
   end
 
