@@ -15,5 +15,6 @@ class TweetersController < ApplicationController
 
     @most_favorited_tweeters = @tweeter.most_favorited_tweeters(cutoff_date)
     @most_retweeted_tweeters = @tweeter.most_retweeted_tweeters(cutoff_date)
+    @favorite_tweeter        = Tweeter.favorite_tweeter(@most_favorited_tweeters, @most_retweeted_tweeters)
   end
 end

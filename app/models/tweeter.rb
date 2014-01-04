@@ -1,4 +1,26 @@
 class Tweeter < ActiveRecord::Base
+  attr_accessor :favs_count, :retweets_count
+
+  def self.favorite_tweeter(favorite_counts, retweet_counts)
+    scores = Hash.new(0)
+
+    favorite_counts.each do |screen_name, favs|
+      scores[screen_name] += favs
+    end
+
+    retweet_counts.each do |screen_name, rts|
+      scores[screen_name] += (rts * 1.5)
+    end
+
+    screen_name = scores.max_by { |_, score| score }.first
+
+    Tweeter.new(
+      :screen_name    => screen_name,
+      :favs_count     => Hash[favorite_counts][screen_name],
+      :retweets_count => Hash[retweet_counts][screen_name]
+    )
+  end
+
   # Public: Get an array of [username, fav_count] tuples in descending order by
   # favorite count.
   #

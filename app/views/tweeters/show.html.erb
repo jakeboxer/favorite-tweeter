@@ -1,6 +1,13 @@
 <h1>@<%= @tweeter.screen_name %></h1>
 
-<h2>Most favorited</h2>
+<h2>Favorite tweeter: @<%= @favorite_tweeter.screen_name %></h2>
+
+<p>
+  <%= pluralize(@favorite_tweeter.favs_count, "favorite") %>,
+  <%= pluralize(@favorite_tweeter.retweets_count, "retweet") %>
+</p>
+
+<h3>Most favorited</h3>
 
 <ul>
   <% @most_favorited_tweeters.each do |screen_name, favs| %>
@@ -8,7 +15,7 @@
   <% end %>
 </ul>
 
-<h2>Most retweeted</h2>
+<h3>Most retweeted</h3>
 
 <ul>
   <% @most_retweeted_tweeters.each do |screen_name, rts| %>
