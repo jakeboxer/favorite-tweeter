@@ -11,5 +11,6 @@ class TweetersController < ApplicationController
 
   def show
     @tweeter = Tweeter.find_by!(:screen_name => params[:screen_name])
+    @tweets = TWITTER.user_timeline(@tweeter.screen_name)
   end
 end
