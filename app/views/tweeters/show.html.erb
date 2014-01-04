@@ -8,18 +8,18 @@
   (total score: <%= @favorite_tweeter.score %>)
 </p>
 
-<h3>Most favorited</h3>
+<h3>Top 8 favorited</h3>
 
 <ul>
-  <% @most_favorited_tweeters.each do |screen_name, favs| %>
+  <% @most_favorited_tweeters.take(8).each do |screen_name, favs| %>
     <li><strong>@<%= screen_name %></strong> (<%= favs %>)</li>
   <% end %>
 </ul>
 
-<h3>Most retweeted</h3>
+<h3>Top 8 retweeted</h3>
 
 <ul>
-  <% @most_retweeted_tweeters.each do |screen_name, rts| %>
+  <% @most_retweeted_tweeters.take(8).each do |screen_name, rts| %>
     <li><strong>@<%= screen_name %></strong> (<%= rts %>)</li>
   <% end %>
 </ul>
