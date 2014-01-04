@@ -1,7 +1,17 @@
 <h1>@<%= @tweeter.screen_name %></h1>
 
+<h2>Most favorited</h2>
+
 <ul>
-  <% @tweets.each do |tweet| %>
-    <li><%= tweet.text %></li>
+  <% @tweeters_by_favs.each do |screen_name, favs| %>
+    <li><strong>@<%= screen_name %></strong> (<%= favs %>)</li>
+  <% end %>
+</ul>
+
+<h2>Most retweeted</h2>
+
+<ul>
+  <% @tweeters_by_rts.each do |screen_name, rts| %>
+    <li><strong>@<%= screen_name %></strong> (<%= rts %>)</li>
   <% end %>
 </ul>
