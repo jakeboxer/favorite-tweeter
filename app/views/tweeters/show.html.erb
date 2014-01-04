@@ -1,0 +1,7 @@
+<h1>@<%= @tweeter.screen_name %></h1>
+
+<ul>
+  <% @tweets.each do |tweet| %>
+    <li><%= tweet.text %></li>
+  <% end %>
+</ul>
