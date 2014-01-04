@@ -5,6 +5,7 @@
 <p>
   <%= pluralize(@favorite_tweeter.favs_count, "favorite") %>,
   <%= pluralize(@favorite_tweeter.retweets_count, "retweet") %>
+  (total score: <%= @favorite_tweeter.score %>)
 </p>
 
 <h3>Most favorited</h3>

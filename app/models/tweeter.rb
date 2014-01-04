@@ -1,5 +1,5 @@
 class Tweeter < ActiveRecord::Base
-  attr_accessor :favs_count, :retweets_count
+  attr_accessor :favs_count, :retweets_count, :score
 
   def self.favorite_tweeter(favorite_counts, retweet_counts)
     scores = Hash.new(0)
@@ -12,12 +12,14 @@ class Tweeter < ActiveRecord::Base
       scores[screen_name] += (rts * 1.5)
     end
 
-    screen_name = scores.max_by { |_, score| score }.first
+    winning_screen_name, winning_score = scores.max_by { |_, score| score }
+
 
     Tweeter.new(
-      :screen_name    => screen_name,
-      :favs_count     => Hash[favorite_counts][screen_name],
-      :retweets_count => Hash[retweet_counts][screen_name]
+      :screen_name    => winning_screen_name,
+      :favs_count     => Hash[favorite_counts][winning_screen_name],
+      :retweets_count => Hash[retweet_counts][winning_screen_name],
+      :score          => winning_score
     )
   end
 
