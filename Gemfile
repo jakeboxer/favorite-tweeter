@@ -27,6 +27,8 @@ gem 'jbuilder', '~> 1.2'
 gem 'twitter', '~> 5.4.1'
 
 group :development, :test do
+  gem 'pry-debugger', '~> 0.2.2'
+  gem 'pry-rails', '~> 0.3.2'
   gem 'rspec-rails', '~> 3.0.0.beta'
 end
 
