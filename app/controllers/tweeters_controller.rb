@@ -16,26 +16,27 @@ class TweetersController < ApplicationController
     retweets          = TWITTER.retweeted_by_user(@tweeter.screen_name, :count => 200)
     oldest_tweet_time = 3.months.ago
 
-    faved_users     = Hash.new(0)
-    retweeted_users = Hash.new(0)
+    # Hash of username => count, where count is the number of tweets by username
+    # that were faved by the specified user.
+    fav_counts       = Hash.new(0)
+
+    # Hash of username => count, where count is the number of tweets by username
+    # that were RTed by the specified user.
+    rt_counts        = Hash.new(0)
 
     faved_tweets.each do |tweet|
       break unless tweet.created_at >= oldest_tweet_time
 
-      faved_users[tweet.user.screen_name] += 1
-
-      if tweet.retweet?
-        faved_users[tweet.retweeted_status.user.screen_name] += 1
-      end
+      fav_counts[tweet.user.screen_name] += 1
     end
 
     retweets.each do |tweet|
       break unless tweet.created_at >= oldest_tweet_time
 
-      retweeted_users[tweet.retweeted_status.user.screen_name] += 1
+      rt_counts[tweet.retweeted_status.user.screen_name] += 1
     end
 
-    @tweeters_by_favs = faved_users.sort_by { |_, favs| -favs }
-    @tweeters_by_rts  = retweeted_users.sort_by { |_, rts| -rts }
+    @tweeters_by_favs        = fav_counts.sort_by { |_, count| -count }
+    @tweeters_by_rts         = rt_counts.sort_by { |_, count| -count }
   end
 end
