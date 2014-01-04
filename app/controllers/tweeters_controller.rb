@@ -10,6 +10,6 @@ class TweetersController < ApplicationController
   end
 
   def show
-    @tweeter = Tweeter.find(params[:id])
+    @tweeter = Tweeter.find_by!(:screen_name => params[:screen_name])
   end
 end

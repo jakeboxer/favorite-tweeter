@@ -8,6 +8,20 @@ describe TweetersController do
     end
   end
 
+  describe "GET 'show'" do
+    let(:tweeter) { create(:tweeter) }
+
+    it "returns http success if the user exists" do
+      get "show", :screen_name => tweeter.screen_name
+      expect(response).to be_success
+    end
+
+    it "returns http not found if the user doesn't exist" do
+      get "show", :screen_name => tweeter.screen_name + "nonexist"
+      expect(response).to be_not_found
+    end
+  end
+
   describe "POST 'create'" do
     let(:screen_name) { "jakeboxer" }
 
