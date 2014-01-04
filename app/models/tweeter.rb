@@ -1,19 +1,22 @@
 class Tweeter < ActiveRecord::Base
   attr_accessor :favs_count, :retweets_count, :score
 
+  # Public: Get the favorite tweeter based on the specified count hashes of
+  # favorites and retweets.
+  #
+  # favorite_counts - A hash of the format { screen_name => favorite_count }
+  # retweet_counts  - A hash of the format { screen_name => retweet_count }
+  #
+  # Returns a Tweeter.
   def self.favorite_tweeter(favorite_counts, retweet_counts)
-    scores = Hash.new(0)
+    # Count each fav as 1 point
+    scores = Hash[favorite_counts]
+    scores.default = 0
 
-    favorite_counts.each do |screen_name, favs|
-      scores[screen_name] += favs
-    end
-
-    retweet_counts.each do |screen_name, rts|
-      scores[screen_name] += (rts * 1.5)
-    end
+    # Count each RT as 1.5 points
+    retweet_counts.each { |screen_name, rts| scores[screen_name] += (rts * 1.5) }
 
     winning_screen_name, winning_score = scores.max_by { |_, score| score }
-
 
     Tweeter.new(
       :screen_name    => winning_screen_name,
