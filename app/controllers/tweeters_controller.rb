@@ -35,7 +35,7 @@ class TweetersController < ApplicationController
       retweeted_users[tweet.retweeted_status.user.screen_name] += 1
     end
 
-    @tweeters_by_favs = faved_users.sort_by { |_, favs| favs }.reverse
-    @tweeters_by_rts  = retweeted_users.sort_by { |_, rts| rts }.reverse
+    @tweeters_by_favs = faved_users.sort_by { |_, favs| -favs }
+    @tweeters_by_rts  = retweeted_users.sort_by { |_, rts| -rts }
   end
 end
