@@ -3,7 +3,7 @@
 <h2>Most favorited</h2>
 
 <ul>
-  <% @tweeters_by_favs.each do |screen_name, favs| %>
+  <% @most_favorited_tweeters.each do |screen_name, favs| %>
     <li><strong>@<%= screen_name %></strong> (<%= favs %>)</li>
   <% end %>
 </ul>
@@ -11,7 +11,7 @@
 <h2>Most retweeted</h2>
 
 <ul>
-  <% @tweeters_by_rts.each do |screen_name, rts| %>
+  <% @most_retweeted_tweeters.each do |screen_name, rts| %>
     <li><strong>@<%= screen_name %></strong> (<%= rts %>)</li>
   <% end %>
 </ul>
