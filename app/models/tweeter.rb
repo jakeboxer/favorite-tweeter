@@ -37,7 +37,7 @@ class Tweeter < ActiveRecord::Base
   # Examples
   #
   #   tweets = TWITTER.retweeted_by_user("jakeboxer")
-  #   user_count(tweets)
+  #   Tweeter.screen_name_count(tweets)
   #   # => [["justinbieber", 18], ["jessicard", 15], ["scottjg", 2]]
   #
   # tweets      - List of tweets to count.
