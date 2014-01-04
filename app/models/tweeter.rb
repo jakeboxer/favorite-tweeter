@@ -7,14 +7,8 @@ class Tweeter < ActiveRecord::Base
   #
   # Returns an Array.
   def most_favorited_tweeters(cutoff_date)
-    faved_tweets = TWITTER.favorites(screen_name, :count => 100).select do |tweet|
-      tweet.created_at >= cutoff_date
-    end
-
-    counts = Hash.new(0)
-    faved_tweets.each { |t| counts[t.user.screen_name] += 1 }
-
-    sort_count_hash(counts)
+    faved_tweets = TWITTER.favorites(screen_name, :count => 100)
+    self.class.screen_name_count(faved_tweets, cutoff_date)
   end
 
   # Public: Get an array of [username, rt_count] tuples in descending order by
@@ -25,14 +19,8 @@ class Tweeter < ActiveRecord::Base
   #
   # Returns an Array.
   def most_retweeted_tweeters(cutoff_date)
-    retweets = TWITTER.retweeted_by_user(screen_name, :count => 200).select do |tweet|
-      tweet.created_at >= cutoff_date
-    end
-
-    counts = Hash.new(0)
-    retweets.each { |t| counts[t.retweeted_status.user.screen_name] += 1 }
-
-    sort_count_hash(counts)
+    retweets = TWITTER.retweeted_by_user(screen_name, :count => 200)
+    self.class.screen_name_count(retweets, cutoff_date)
   end
 
   def to_param
@@ -41,23 +29,35 @@ class Tweeter < ActiveRecord::Base
 
   private
 
-  # Internal: Convert a count hash into an array of tuples sorted by value in
-  # descending order.
+  # Internal: Convert a list of Twitter::Tweets into a list counting the number
+  # of times each user appears in the list.
   #
-  # Ex:
+  # The list is in descending order by count.
   #
-  #   fav_counts = {
-  #     "user1" => 26,
-  #     "user2" => 29,
-  #     "user3" => 25
-  #   }
-  #   sort_hash_count(fav_counts)
-  #   # => [["user2", 29], ["user1", 26], ["user3", 25]]
+  # Examples
   #
-  # count_hash - A hash of format { key1 => count1, key2 => count2 }.
+  #   tweets = TWITTER.retweeted_by_user("jakeboxer")
+  #   user_count(tweets)
+  #   # => [["justinbieber", 18], ["jessicard", 15], ["scottjg", 2]]
   #
-  # Returns an array of format [[key1, count1], [key2, count2]].
-  def sort_count_hash(count_hash)
-    count_hash.sort_by { |_, count| -count }
+  # tweets      - List of tweets to count.
+  # cutoff_date - (Time) Oldest allowed tweet date. Tweets that came before this
+  #               won't be counted.
+  #
+  # Returns an Array of [screen_name, count] tuples.
+  def self.screen_name_count(tweets, cutoff_date)
+    counts = Hash.new(0)
+
+    tweets.each do |tweet|
+      # Don't count this tweet if it happened before the cutoff date.
+      next if tweet.created_at < cutoff_date
+
+      # We only care about the authors of original tweets.
+      original_tweet = tweet.retweet? ? tweet.retweeted_status : tweet
+
+      counts[original_tweet.user.screen_name] += 1
+    end
+
+    counts.sort_by { |_, count| -count }
   end
 end
