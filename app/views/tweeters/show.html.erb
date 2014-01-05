@@ -1,11 +1,11 @@
 <h1>@<%= @tweeter.screen_name %></h1>
 
-<h2>Favorite tweeter: @<%= @favorite_tweeter.screen_name %></h2>
+<h2>Favorite tweeter: @<%= @favorite_tweeter[:screen_name] %></h2>
 
 <p>
-  <%= pluralize(@favorite_tweeter.favs_count, "favorite") %>,
-  <%= pluralize(@favorite_tweeter.retweets_count, "retweet") %>
-  (total score: <%= @favorite_tweeter.score %>)
+  <%= pluralize(@favorite_tweeter[:favs_count], "favorite") %>,
+  <%= pluralize(@favorite_tweeter[:retweets_count], "retweet") %>
+  (total score: <%= @favorite_tweeter[:score] %>)
 </p>
 
 <h3>Top 8 favorited</h3>

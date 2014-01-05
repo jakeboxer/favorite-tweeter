@@ -1,13 +1,15 @@
 class Tweeter < ActiveRecord::Base
-  attr_accessor :favs_count, :retweets_count, :score
-
   # Public: Calculate the favorite tweeter based on the specified count hashes of
   # favorites and retweets.
   #
   # favorite_counts - An array of [screen_name, favorite_count] tuples
   # retweet_counts  - An array of [screen_name, retweet_count] tuples
   #
-  # Returns a Tweeter.
+  # Returns a Hash with the following keys:
+  #   :screen_name    => Screen name of the favorite tweeter
+  #   :favs_count     => Number of tweets he/she had favorited by the user
+  #   :retweets_count => Number of tweets he/she had retweeted by the user
+  #   :score          => Number of points he/she got for all favs/RTs
   def self.calculate_favorite_tweeter(favorite_counts, retweet_counts)
     # Count each fav as 1 point
     scores = Hash[favorite_counts]
@@ -18,12 +20,12 @@ class Tweeter < ActiveRecord::Base
 
     winning_screen_name, winning_score = scores.max_by { |_, score| score }
 
-    Tweeter.new(
+    {
       :screen_name    => winning_screen_name,
       :favs_count     => Hash[favorite_counts][winning_screen_name],
       :retweets_count => Hash[retweet_counts][winning_screen_name],
       :score          => winning_score
-    )
+    }
   end
 
   # Public: Calculate an array of [username, fav_count] tuples in descending
