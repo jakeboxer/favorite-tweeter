@@ -27,6 +27,8 @@ gem 'jbuilder', '~> 1.2'
 gem 'twitter', '~> 5.4.1'
 gem 'omniauth-twitter', '~> 1.0.1'
 
+gem 'resque', '~> 1.25.1'
+
 group :development, :test do
   gem 'dotenv', '~> 0.9.0'
   gem 'factory_girl_rails', '~> 4.3.0'
