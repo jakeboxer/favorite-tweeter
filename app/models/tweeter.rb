@@ -34,8 +34,12 @@ class Tweeter < ActiveRecord::Base
   #
   # Returns an Array.
   def most_favorited_tweeters(cutoff_date)
-    faved_tweets = TWITTER.favorites(screen_name, :count => 100)
-    self.class.screen_name_count(faved_tweets, cutoff_date)
+    faved_tweets = load_tweets_up_to(cutoff_date) do |options|
+      logger.debug "loading more favs with options = #{options.inspect}"
+      TWITTER.favorites(screen_name, options)
+    end
+
+    self.class.screen_name_count(faved_tweets)
   end
 
   # Public: Get an array of [username, rt_count] tuples in descending order by
@@ -46,8 +50,12 @@ class Tweeter < ActiveRecord::Base
   #
   # Returns an Array.
   def most_retweeted_tweeters(cutoff_date)
-    retweets = TWITTER.retweeted_by_user(screen_name, :count => 200)
-    self.class.screen_name_count(retweets, cutoff_date)
+    retweets = load_tweets_up_to(cutoff_date) do |options|
+      logger.debug "loading more retweets with options = #{options.inspect}"
+      TWITTER.retweeted_by_user(screen_name, options)
+    end
+
+    self.class.screen_name_count(retweets)
   end
 
   def to_param
@@ -55,6 +63,24 @@ class Tweeter < ActiveRecord::Base
   end
 
   private
+
+  def load_tweets_up_to(cutoff_date)
+    tweets = []
+
+    while tweets.empty? || tweets.last.created_at >= cutoff_date
+      options          = { :count => 200 }
+      options[:max_id] = tweets.last.id if tweets.present?
+      older_tweets     = yield(options)
+
+      logger.debug "loaded #{older_tweets.size} more tweets (last was #{older_tweets.last.created_at})"
+
+      tweets += older_tweets
+    end
+
+    tweets.select { |tweet| tweet.created_at >= cutoff_date }.tap do |x|
+      logger.debug "done loading. final count is #{x.size}. oldest tweet was #{x.last.created_at}"
+    end
+  end
 
   # Internal: Convert a list of Twitter::Tweets into a list counting the number
   # of times each user appears in the list.
@@ -68,17 +94,12 @@ class Tweeter < ActiveRecord::Base
   #   # => [["justinbieber", 18], ["jessicard", 15], ["scottjg", 2]]
   #
   # tweets      - List of tweets to count.
-  # cutoff_date - (Time) Oldest allowed tweet date. Tweets that came before this
-  #               won't be counted.
   #
   # Returns an Array of [screen_name, count] tuples.
-  def self.screen_name_count(tweets, cutoff_date)
+  def self.screen_name_count(tweets)
     counts = Hash.new(0)
 
     tweets.each do |tweet|
-      # Don't count this tweet if it happened before the cutoff date.
-      next if tweet.created_at < cutoff_date
-
       # We only care about the authors of original tweets.
       original_tweet = tweet.retweet? ? tweet.retweeted_status : tweet
 

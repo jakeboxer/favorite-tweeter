@@ -10,7 +10,7 @@ class TweetersController < ApplicationController
   end
 
   def show
-    cutoff_date = 3.months.ago
+    cutoff_date = 2.months.ago
     @tweeter    = Tweeter.find_by!(:screen_name => params[:screen_name].strip)
 
     @most_favorited_tweeters = @tweeter.most_favorited_tweeters(cutoff_date)
