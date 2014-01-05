@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140105084747) do
+ActiveRecord::Schema.define(version: 20140105092602) do
 
   create_table "tweeters", force: true do |t|
     t.string   "screen_name"
@@ -19,6 +19,10 @@ ActiveRecord::Schema.define(version: 20140105084747) do
     t.datetime "updated_at"
     t.string   "access_token"
     t.string   "access_token_secret"
+    t.datetime "stats_calculated_at"
+    t.text     "most_faved"
+    t.text     "most_retweeted"
+    t.text     "favorite_tweeter"
   end
 
   add_index "tweeters", ["screen_name"], name: "index_tweeters_on_screen_name", unique: true

@@ -1,4 +1,8 @@
 class Tweeter < ActiveRecord::Base
+  serialize :favorite_tweeter, Hash
+  serialize :most_faved, Array
+  serialize :most_retweeted, Array
+
   def calculate_stats!
     self.stats_calculated_at = Time.zone.now
     cutoff_date              = stats_calculated_at - 2.months
