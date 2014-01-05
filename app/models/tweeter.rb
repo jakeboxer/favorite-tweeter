@@ -23,12 +23,20 @@ class Tweeter < ActiveRecord::Base
     save!
   end
 
+  def calculation_required?
+    !stats_calculated? && !stats_job_queued?
+  end
+
   def stats_job_queued?
     stats_job_queued_at.present? && stats_job_queued_at > 1.hour.ago
   end
 
+  def stats_calculated?
+    stats_calculated_at.present?
+  end
+
   def stats_calculated_recently?
-    stats_calculated_at.present? && stats_calculated_at > 1.day.ago
+    stats_calculated? && stats_calculated_at > 1.day.ago
   end
 
   def to_param
