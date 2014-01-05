@@ -1,8 +1,6 @@
 class TweetersController < ApplicationController
   def create
-    @tweeter = Tweeter.find_or_create_by(:screen_name => params[:tweeter][:screen_name])
-
-    redirect_to @tweeter
+    redirect_to "/@#{params[:tweeter][:screen_name].strip}"
   end
 
   def index
@@ -11,10 +9,22 @@ class TweetersController < ApplicationController
 
   def show
     cutoff_date = 2.months.ago
-    @tweeter    = Tweeter.find_by!(:screen_name => params[:screen_name].strip)
 
-    @most_favorited_tweeters = @tweeter.most_favorited_tweeters(cutoff_date)
-    @most_retweeted_tweeters = @tweeter.most_retweeted_tweeters(cutoff_date)
-    @favorite_tweeter        = Tweeter.favorite_tweeter(@most_favorited_tweeters, @most_retweeted_tweeters)
+    if user_signed_in?
+      @tweeter = Tweeter.new(:screen_name => params[:screen_name].strip)
+
+      twitter_client = Twitter::REST::Client.new do |config|
+        config.consumer_key        = ENV["TWITTER_CONSUMER_KEY"]
+        config.consumer_secret     = ENV["TWITTER_CONSUMER_SECRET"]
+        config.access_token        = current_user.access_token
+        config.access_token_secret = current_user.access_token_secret
+      end
+
+      @most_favorited_tweeters = @tweeter.most_favorited_tweeters(cutoff_date, twitter_client)
+      @most_retweeted_tweeters = @tweeter.most_retweeted_tweeters(cutoff_date, twitter_client)
+      @favorite_tweeter        = Tweeter.favorite_tweeter(@most_favorited_tweeters, @most_retweeted_tweeters)
+    else
+      redirect_to "/auth/twitter"
+    end
   end
 end

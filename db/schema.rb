@@ -11,12 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140104024304) do
+ActiveRecord::Schema.define(version: 20140105041019) do
 
   create_table "tweeters", force: true do |t|
     t.string   "screen_name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "access_token"
+    t.string   "access_token_secret"
   end
 
 end

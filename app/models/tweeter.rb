@@ -29,14 +29,15 @@ class Tweeter < ActiveRecord::Base
   # Public: Get an array of [username, fav_count] tuples in descending order by
   # favorite count.
   #
-  # cutoff_date - (Time) Oldest allowed tweet date. Tweets that came before this
-  #               won't be counted.
+  # cutoff_date    - (Time) Oldest allowed tweet date. Tweets that came before
+  #                  this won't be counted.
+  # twitter_client - Twitter::REST::Client to use to make API calls.
   #
   # Returns an Array.
-  def most_favorited_tweeters(cutoff_date)
+  def most_favorited_tweeters(cutoff_date, twitter_client)
     faved_tweets = load_tweets_up_to(cutoff_date) do |options|
       logger.debug "loading more favs with options = #{options.inspect}"
-      TWITTER.favorites(screen_name, options)
+      twitter_client.favorites(screen_name, options)
     end
 
     self.class.screen_name_count(faved_tweets)
@@ -45,14 +46,15 @@ class Tweeter < ActiveRecord::Base
   # Public: Get an array of [username, rt_count] tuples in descending order by
   # retweet count.
   #
-  # cutoff_date - (Time) Oldest allowed tweet date. Tweets that came before this
-  #               won't be counted.
+  # cutoff_date    - (Time) Oldest allowed tweet date. Tweets that came before
+  #                  this won't be counted.
+  # twitter_client - Twitter::REST::Client to use to make API calls.
   #
   # Returns an Array.
-  def most_retweeted_tweeters(cutoff_date)
+  def most_retweeted_tweeters(cutoff_date, twitter_client)
     retweets = load_tweets_up_to(cutoff_date) do |options|
       logger.debug "loading more retweets with options = #{options.inspect}"
-      TWITTER.retweeted_by_user(screen_name, options)
+      twitter_client.retweeted_by_user(screen_name, options)
     end
 
     self.class.screen_name_count(retweets)
