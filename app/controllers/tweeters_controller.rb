@@ -9,13 +9,8 @@ class TweetersController < ApplicationController
 
   def show
     if user_signed_in?
-      @tweeter       = Tweeter.new(:screen_name => params[:screen_name].strip)
-      twitter_client = current_user.twitter_rest_client
-      cutoff_date    = 2.months.ago
-
-      @most_favorited_tweeters = @tweeter.calculate_most_faved(cutoff_date, twitter_client)
-      @most_retweeted_tweeters = @tweeter.calculate_most_retweeted(cutoff_date, twitter_client)
-      @favorite_tweeter        = Tweeter.calculate_favorite_tweeter(@most_favorited_tweeters, @most_retweeted_tweeters)
+      @tweeter = Tweeter.new(:screen_name => params[:screen_name].strip)
+      @tweeter.calculate_stats!
     else
       session[:return_to] = request.fullpath
       redirect_to "/auth/twitter"

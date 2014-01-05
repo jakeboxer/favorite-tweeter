@@ -1,29 +1,54 @@
 class Tweeter < ActiveRecord::Base
-  # Public: Calculate the favorite tweeter based on the specified count hashes of
-  # favorites and retweets.
+  def calculate_stats!
+    self.stats_calculated_at = Time.zone.now
+    cutoff_date              = stats_calculated_at - 2.months
+
+    self.most_faved       = calculate_most_faved(cutoff_date, twitter_rest_client)
+    self.most_retweeted   = calculate_most_retweeted(cutoff_date, twitter_rest_client)
+    self.favorite_tweeter = calculate_favorite_tweeter
+
+    save!
+  end
+
+  def to_param
+    screen_name
+  end
+
+  # Public: Get a Twitter REST client authenticated with this tweeter.
   #
-  # favorite_counts - An array of [screen_name, favorite_count] tuples
-  # retweet_counts  - An array of [screen_name, retweet_count] tuples
+  # Returns a Twitter::REST::Client.
+  def twitter_rest_client
+    @twitter_rest_client ||= Twitter::REST::Client.new do |config|
+      config.consumer_key        = ENV["TWITTER_CONSUMER_KEY"]
+      config.consumer_secret     = ENV["TWITTER_CONSUMER_SECRET"]
+      config.access_token        = access_token
+      config.access_token_secret = access_token_secret
+    end
+  end
+
+  private
+
+  # Public: Calculate the favorite tweeter based on favs and retweets.
   #
   # Returns a Hash with the following keys:
   #   :screen_name    => Screen name of the favorite tweeter
   #   :favs_count     => Number of tweets he/she had favorited by the user
   #   :retweets_count => Number of tweets he/she had retweeted by the user
   #   :score          => Number of points he/she got for all favs/RTs
-  def self.calculate_favorite_tweeter(favorite_counts, retweet_counts)
+  def calculate_favorite_tweeter
     # Count each fav as 1 point
-    scores = Hash[favorite_counts]
+    scores = Hash[most_faved]
     scores.default = 0
 
     # Count each RT as 1.5 points
-    retweet_counts.each { |screen_name, rts| scores[screen_name] += (rts * 1.5) }
+    most_retweeted.each { |screen_name, rts| scores[screen_name] += (rts * 1.5) }
 
     winning_screen_name, winning_score = scores.max_by { |_, score| score }
 
     {
       :screen_name    => winning_screen_name,
-      :favs_count     => Hash[favorite_counts][winning_screen_name],
-      :retweets_count => Hash[retweet_counts][winning_screen_name],
+      :favs_count     => Hash[most_faved][winning_screen_name],
+      :retweets_count => Hash[most_retweeted][winning_screen_name],
       :score          => winning_score
     }
   end
@@ -61,24 +86,6 @@ class Tweeter < ActiveRecord::Base
 
     self.class.screen_name_count(retweets)
   end
-
-  def to_param
-    screen_name
-  end
-
-  # Public: Get a Twitter REST client authenticated with this tweeter.
-  #
-  # Returns a Twitter::REST::Client.
-  def twitter_rest_client
-    @twitter_rest_client ||= Twitter::REST::Client.new do |config|
-      config.consumer_key        = ENV["TWITTER_CONSUMER_KEY"]
-      config.consumer_secret     = ENV["TWITTER_CONSUMER_SECRET"]
-      config.access_token        = access_token
-      config.access_token_secret = access_token_secret
-    end
-  end
-
-  private
 
   def load_tweets_up_to(cutoff_date)
     tweets = []
