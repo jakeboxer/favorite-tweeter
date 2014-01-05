@@ -54,8 +54,8 @@ class Tweeter < ActiveRecord::Base
   def most_retweeted_tweeters(cutoff_date, twitter_client)
     retweets = load_tweets_up_to(cutoff_date) do |options|
       logger.debug "loading more retweets with options = #{options.inspect}"
-      twitter_client.retweeted_by_user(screen_name, options)
-    end
+      twitter_client.user_timeline(screen_name, options)
+    end.select(&:retweet?)
 
     self.class.screen_name_count(retweets)
   end
