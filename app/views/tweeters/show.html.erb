@@ -1,25 +1,5 @@
 <h1>@<%= @tweeter.screen_name %></h1>
 
-<h2>Favorite tweeter: @<%= @favorite_tweeter.screen_name %></h2>
-
-<p>
-  <%= pluralize(@favorite_tweeter.favs_count, "favorite") %>,
-  <%= pluralize(@favorite_tweeter.retweets_count, "retweet") %>
-  (total score: <%= @favorite_tweeter.score %>)
-</p>
-
-<h3>Top 8 favorited</h3>
-
-<ul>
-  <% @most_favorited_tweeters.take(8).each do |screen_name, favs| %>
-    <li><strong>@<%= screen_name %></strong> (<%= favs %>)</li>
-  <% end %>
-</ul>
-
-<h3>Top 8 retweeted</h3>
-
-<ul>
-  <% @most_retweeted_tweeters.take(8).each do |screen_name, rts| %>
-    <li><strong>@<%= screen_name %></strong> (<%= rts %>)</li>
-  <% end %>
-</ul>
+<div class="stats <% if @tweeter.stats_job_queued? %>js-calculating <% end %>" data-screen-name="<%= @tweeter.screen_name %>">
+  <%= render :partial => "stats", :locals => { :tweeter => @tweeter } %>
+</div>
