@@ -10,6 +10,6 @@ class SessionsController < ApplicationController
 
     session[:screen_name] = tweeter.screen_name
 
-    redirect_to "/"
+    redirect_to(session.delete(:return_to) || "/")
   end
 end
