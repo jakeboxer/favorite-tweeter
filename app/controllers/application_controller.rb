@@ -5,14 +5,10 @@ class ApplicationController < ActionController::Base
 
   rescue_from ActiveRecord::RecordNotFound, :with => :record_not_found
 
-  def auth_hash
-    @auth_hash ||= request.env["omniauth.auth"]
-  end
-
   def current_user
     return @current_user if defined?(@current_user)
 
-    @current_user = Tweeter.find_by(auth_hash[:info][:nickname])
+    @current_user = Tweeter.find_by(:screen_name => session[:screen_name])
   end
   helper_method :current_user
 
