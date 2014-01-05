@@ -64,6 +64,18 @@ class Tweeter < ActiveRecord::Base
     screen_name
   end
 
+  # Public: Get a Twitter REST client authenticated with this tweeter.
+  #
+  # Returns a Twitter::REST::Client.
+  def twitter_rest_client
+    @twitter_rest_client ||= Twitter::REST::Client.new do |config|
+      config.consumer_key        = ENV["TWITTER_CONSUMER_KEY"]
+      config.consumer_secret     = ENV["TWITTER_CONSUMER_SECRET"]
+      config.access_token        = access_token
+      config.access_token_secret = access_token_secret
+    end
+  end
+
   private
 
   def load_tweets_up_to(cutoff_date)
