@@ -1,25 +1,43 @@
 <h1>@<%= @tweeter.screen_name %></h1>
 
-<h2>Favorite tweeter: @<%= @tweeter.favorite_tweeter[:screen_name] %></h2>
+<h2>
+  Favorite tweeter:
 
-<p>
-  <%= pluralize(@tweeter.favorite_tweeter[:favs_count], "favorite") %>,
-  <%= pluralize(@tweeter.favorite_tweeter[:retweets_count], "retweet") %>
-  (total score: <%= @tweeter.favorite_tweeter[:score] %>)
-</p>
+  <% if @tweeter.stats_job_queued? %>
+    calculating...
+  <% else %>
+    @<%= @tweeter.favorite_tweeter[:screen_name] %>
+  <% end %>
+</h2>
+
+<% unless @tweeter.stats_job_queued? %>
+  <p>
+    <%= pluralize(@tweeter.favorite_tweeter[:favs_count], "favorite") %>,
+    <%= pluralize(@tweeter.favorite_tweeter[:retweets_count], "retweet") %>
+    (total score: <%= @tweeter.favorite_tweeter[:score] %>)
+  </p>
+<% end %>
 
 <h3>Top 8 favorited</h3>
 
 <ul>
-  <% @tweeter.most_faved.take(8).each do |screen_name, favs| %>
-    <li><strong>@<%= screen_name %></strong> (<%= favs %>)</li>
+  <% if @tweeter.stats_job_queued? %>
+    <li>Calculating...</li>
+  <% else %>
+    <% @tweeter.most_faved.take(8).each do |screen_name, favs| %>
+      <li><strong>@<%= screen_name %></strong> (<%= favs %>)</li>
+    <% end %>
   <% end %>
 </ul>
 
 <h3>Top 8 retweeted</h3>
 
 <ul>
-  <% @tweeter.most_retweeted.take(8).each do |screen_name, rts| %>
-    <li><strong>@<%= screen_name %></strong> (<%= rts %>)</li>
+  <% if @tweeter.stats_job_queued? %>
+    <li>Calculating...</li>
+  <% else %>
+    <% @tweeter.most_retweeted.take(8).each do |screen_name, rts| %>
+      <li><strong>@<%= screen_name %></strong> (<%= rts %>)</li>
+    <% end %>
   <% end %>
 </ul>

@@ -3,15 +3,32 @@ class Tweeter < ActiveRecord::Base
   serialize :most_faved, Array
   serialize :most_retweeted, Array
 
-  def calculate_stats!
+  def calculate_stats(requester)
+    if !stats_job_queued? && !stats_calculated_recently?
+      Resque.enqueue(CalculateStatsJob, id, requester.id)
+      touch(:stats_job_queued_at)
+    end
+  end
+
+  def calculate_stats!(requester)
+    self.stats_job_queued_at = nil
     self.stats_calculated_at = Time.zone.now
     cutoff_date              = stats_calculated_at - 2.months
+    twitter_client           = requester.twitter_rest_client
 
-    self.most_faved       = calculate_most_faved(cutoff_date, twitter_rest_client)
-    self.most_retweeted   = calculate_most_retweeted(cutoff_date, twitter_rest_client)
+    self.most_faved       = calculate_most_faved(cutoff_date, twitter_client)
+    self.most_retweeted   = calculate_most_retweeted(cutoff_date, twitter_client)
     self.favorite_tweeter = calculate_favorite_tweeter
 
     save!
+  end
+
+  def stats_job_queued?
+    stats_job_queued_at.present? && stats_job_queued_at > 1.hour.ago
+  end
+
+  def stats_calculated_recently?
+    stats_calculated_at.present? && stats_calculated_at > 1.day.ago
   end
 
   def to_param
