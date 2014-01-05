@@ -54,14 +54,26 @@ class Tweeter < ActiveRecord::Base
   def most_retweeted_tweeters(cutoff_date, twitter_client)
     retweets = load_tweets_up_to(cutoff_date) do |options|
       logger.debug "loading more retweets with options = #{options.inspect}"
-      twitter_client.retweeted_by_user(screen_name, options)
-    end
+      twitter_client.user_timeline(screen_name, options)
+    end.select(&:retweet?)
 
     self.class.screen_name_count(retweets)
   end
 
   def to_param
     screen_name
+  end
+
+  # Public: Get a Twitter REST client authenticated with this tweeter.
+  #
+  # Returns a Twitter::REST::Client.
+  def twitter_rest_client
+    @twitter_rest_client ||= Twitter::REST::Client.new do |config|
+      config.consumer_key        = ENV["TWITTER_CONSUMER_KEY"]
+      config.consumer_secret     = ENV["TWITTER_CONSUMER_SECRET"]
+      config.access_token        = access_token
+      config.access_token_secret = access_token_secret
+    end
   end
 
   private
