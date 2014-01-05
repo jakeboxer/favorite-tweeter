@@ -35,7 +35,7 @@ class Tweeter < ActiveRecord::Base
   # Returns an Array.
   def most_favorited_tweeters(cutoff_date)
     faved_tweets = load_tweets_up_to(cutoff_date) do |options|
-      puts "loading more favs with options = #{options.inspect}"
+      logger.debug "loading more favs with options = #{options.inspect}"
       TWITTER.favorites(screen_name, options)
     end
 
@@ -51,7 +51,7 @@ class Tweeter < ActiveRecord::Base
   # Returns an Array.
   def most_retweeted_tweeters(cutoff_date)
     retweets = load_tweets_up_to(cutoff_date) do |options|
-      puts "loading more retweets with options = #{options.inspect}"
+      logger.debug "loading more retweets with options = #{options.inspect}"
       TWITTER.retweeted_by_user(screen_name, options)
     end
 
@@ -72,12 +72,14 @@ class Tweeter < ActiveRecord::Base
       options[:max_id] = tweets.last.id if tweets.present?
       older_tweets     = yield(options)
 
-      puts "loaded #{older_tweets.size} more tweets (last was #{older_tweets.last.created_at})"
+      logger.debug "loaded #{older_tweets.size} more tweets (last was #{older_tweets.last.created_at})"
 
       tweets += older_tweets
     end
 
-    tweets.select { |tweet| tweet.created_at >= cutoff_date }.tap { |x| "done loading. final count is #{tweets.size}. oldest tweet was #{tweets.last.created_at}"}
+    tweets.select { |tweet| tweet.created_at >= cutoff_date }.tap do |x|
+      logger.debug "done loading. final count is #{x.size}. oldest tweet was #{x.last.created_at}"
+    end
   end
 
   # Internal: Convert a list of Twitter::Tweets into a list counting the number
