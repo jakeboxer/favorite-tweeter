@@ -13,9 +13,9 @@ class TweetersController < ApplicationController
       twitter_client = current_user.twitter_rest_client
       cutoff_date    = 2.months.ago
 
-      @most_favorited_tweeters = @tweeter.most_favorited_tweeters(cutoff_date, twitter_client)
-      @most_retweeted_tweeters = @tweeter.most_retweeted_tweeters(cutoff_date, twitter_client)
-      @favorite_tweeter        = Tweeter.favorite_tweeter(@most_favorited_tweeters, @most_retweeted_tweeters)
+      @most_favorited_tweeters = @tweeter.calculate_most_faved(cutoff_date, twitter_client)
+      @most_retweeted_tweeters = @tweeter.calculate_most_retweeted(cutoff_date, twitter_client)
+      @favorite_tweeter        = Tweeter.calculate_favorite_tweeter(@most_favorited_tweeters, @most_retweeted_tweeters)
     else
       session[:return_to] = request.fullpath
       redirect_to "/auth/twitter"

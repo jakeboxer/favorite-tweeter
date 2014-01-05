@@ -1,14 +1,14 @@
 class Tweeter < ActiveRecord::Base
   attr_accessor :favs_count, :retweets_count, :score
 
-  # Public: Get the favorite tweeter based on the specified count hashes of
+  # Public: Calculate the favorite tweeter based on the specified count hashes of
   # favorites and retweets.
   #
-  # favorite_counts - A hash of the format { screen_name => favorite_count }
-  # retweet_counts  - A hash of the format { screen_name => retweet_count }
+  # favorite_counts - An array of [screen_name, favorite_count] tuples
+  # retweet_counts  - An array of [screen_name, retweet_count] tuples
   #
   # Returns a Tweeter.
-  def self.favorite_tweeter(favorite_counts, retweet_counts)
+  def self.calculate_favorite_tweeter(favorite_counts, retweet_counts)
     # Count each fav as 1 point
     scores = Hash[favorite_counts]
     scores.default = 0
@@ -26,15 +26,15 @@ class Tweeter < ActiveRecord::Base
     )
   end
 
-  # Public: Get an array of [username, fav_count] tuples in descending order by
-  # favorite count.
+  # Public: Calculate an array of [username, fav_count] tuples in descending
+  # order by favorite count.
   #
   # cutoff_date    - (Time) Oldest allowed tweet date. Tweets that came before
   #                  this won't be counted.
   # twitter_client - Twitter::REST::Client to use to make API calls.
   #
   # Returns an Array.
-  def most_favorited_tweeters(cutoff_date, twitter_client)
+  def calculate_most_faved(cutoff_date, twitter_client)
     faved_tweets = load_tweets_up_to(cutoff_date) do |options|
       logger.debug "loading more favs with options = #{options.inspect}"
       twitter_client.favorites(screen_name, options)
@@ -43,15 +43,15 @@ class Tweeter < ActiveRecord::Base
     self.class.screen_name_count(faved_tweets)
   end
 
-  # Public: Get an array of [username, rt_count] tuples in descending order by
-  # retweet count.
+  # Public: Calculate an array of [username, rt_count] tuples in descending
+  # order by retweet count.
   #
   # cutoff_date    - (Time) Oldest allowed tweet date. Tweets that came before
   #                  this won't be counted.
   # twitter_client - Twitter::REST::Client to use to make API calls.
   #
   # Returns an Array.
-  def most_retweeted_tweeters(cutoff_date, twitter_client)
+  def calculate_most_retweeted(cutoff_date, twitter_client)
     retweets = load_tweets_up_to(cutoff_date) do |options|
       logger.debug "loading more retweets with options = #{options.inspect}"
       twitter_client.user_timeline(screen_name, options)
